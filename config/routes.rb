@@ -4,4 +4,8 @@ Rails.application.routes.draw do
 
   get '/user/signup', to: 'user#signup' #show signup page
   get '/user/login', to: 'user#login' #show login page
+
+  get '/analysis', to: 'analysis#show' #financial chart page
+
+  get '/portfolio', to: 'portfolio#show' #see positions/ buy/sell
 end
