@@ -69,7 +69,7 @@ $(document).on('ready page:load', function(event) {
       for (var key in data) {
         // console.log(key) //coin symbol
         // console.log(data[key].USD) //price
-        $(`#${key}`).text(`${key}: ${data[key].USD}`)
+        $(`#live${key}`).text(`${key}: ${data[key].USD}`)
       }
     }) // close api call
   } // close fn
