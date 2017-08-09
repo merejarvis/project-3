@@ -9,6 +9,7 @@ $(document).on('ready page:load', function(event) {
   var bufferPeriods = 20
   var dataArr = []
   var indicator1 = ''
+  var indicator1data = []
   // update chart based on selection changes
   $('select').change(function() {
     currencySym = $(':selected')[0].id
@@ -35,26 +36,36 @@ $(document).on('ready page:load', function(event) {
       })
       // console.log(close)
 
+      //always chart the price
+      dataArr = [close]
+
+      // finding min.max value for y axis
       closeSort = close.sort(function(a,b) {
         return a.value - b.value
       })
       // console.log(closeSort)
-
       if (indicator1 === 'SMA5') {
         //calculate sma5
         sma5 = JSON.parse(JSON.stringify(apidata)).splice(0)
         // console.log(sma5)
         for (i = 20; i < sma5.length; i++) {
-          var sum5days = sma5[i-5].close + sma5[i-4].close + sma5[i-3].close + sma5[i-2].close + sma5[i-1].close
-          var avg = sum5days / 5
+          var arr5days = sma5.slice(i-5,i)
+          var sum = arr5days.reduce(function(a,b) {
+            return {close: (a.close + b.close)}
+          })
+          var avg = sum.close/5
           sma5[i].value = avg
           sma5[i].time = new Date(sma5[i].time * 1000)
         }
-        sma5 = sma5.splice(20)
-
-        dataArr.push(sma5)
-      } else dataArr = [close]
-
+        indicator1data = sma5.splice(20)
+        dataArr[1] = indicator1data
+      } else {
+        indicator1 = ''
+        indicator1data = []
+        dataArr.splice(1,1) //removes indicator1 line
+      }
+      
+      console.log(dataArr)
       plot()
 
     })
