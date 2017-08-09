@@ -18,14 +18,13 @@ $(document).on('ready page:load', function(event) {
     timeFrame = $(':selected')[1].className
     indicator1 = $(':selected')[2].id
     //which api to call. min/hr/day
-
+    // console.log($(':selected'))
     // console.log(indicator1)
     totalTimePeriods = parseInt(timeDigit) + bufferPeriods - 1
     var histoQuery =`https://min-api.cryptocompare.com/data/histo${timeFrame}?tsym=USD&fsym=${currencySym}&limit=${totalTimePeriods}`
 
     $.get(histoQuery).done(function(x) {
       apidata = x.Data
-      // console.log(apidata)
 
       //for prices remove day -20 to 0
       close = JSON.parse(JSON.stringify(apidata)).splice(20)
@@ -33,15 +32,8 @@ $(document).on('ready page:load', function(event) {
         e.time =  new Date(e.time * 1000)
         e.value = e.close
       })
-
       //always chart the price
       dataArr = [close]
-
-      // finding min.max value for y axis
-      closeSort = close.sort(function(a,b) {
-        return a.value - b.value
-      })
-      // console.log(closeSort)
 
       if (indicator1 === 'SMA5') {
         sma5 = JSON.parse(JSON.stringify(apidata)).splice(0)
@@ -56,20 +48,47 @@ $(document).on('ready page:load', function(event) {
         }
         indicator1data = sma5.splice(20)
         dataArr[1] = indicator1data
+      } else if (indicator1 === 'SMA20') {
+        sma20 = JSON.parse(JSON.stringify(apidata)).splice(0)
+        for (i = 20; i < sma20.length; i++) {
+          var arr20days = sma20.slice(i-20,i)
+          var sum = arr20days.reduce(function(a,b) {
+            return {close: (a.close + b.close)}
+          })
+          var avg = sum.close/20
+          sma20[i].value = avg
+          sma20[i].time = new Date(sma20[i].time * 1000)
+        }
+        indicator1data = sma20.splice(20)
+        dataArr[1] = indicator1data
+        console.log(indicator1data)
       } else {
-        indicator1 = ''
         indicator1data = []
         dataArr.splice(1,1) //removes indicator1 line
       }
 
-      console.log(dataArr)
+      // console.log(dataArr)
       plot()
 
+
+      volume = JSON.parse(JSON.stringify(apidata)).splice(20)
+      volume.forEach(function(e) {
+        e.time =  new Date(e.time * 1000)
+        e.value = e.volumeto
+      })
+      console.log(volume)
+      plotVolume()
     })
   })
 
   /*------------------------------------------------*/
   function plot() {
+    // finding min.max value for y axis
+    closeSort = close.sort(function(a,b) {
+      return a.value - b.value
+    })
+    // console.log(closeSort)
+
     MG.data_graphic({
       // title: 'Historical Price',
       // description: 'Closing',
@@ -90,6 +109,28 @@ $(document).on('ready page:load', function(event) {
     })
   }
 
+  function plotVolume() {
+    MG.data_graphic({
+      // title: 'Historical Price',
+      // description: 'Closing',
+      data: [volume],
+      chart_type: 'histogram',
+      binned: true,
+      width: 1000,
+      height: 200,
+      target: '#volume',
+      x_accessor: 'time',
+      y_accessor: 'value',
+      x_label: 'Time',
+      y_label: 'Volume',
+      // yax_format: d3.format('2'),
+      min_y_from_data: true,
+      // min_y: volumeSort[0].value,
+      //sets axis min
+      // max_y: volumeSort[volumeSort.length - 1].value,
+      aggregate_rollover: true
+    })
+  }
   /*------------------------------------------------*/
   var currentPriceApi = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,XRP,BCH,XEM,LTC,GNO,EOS,NEO,DASH&tsyms=USD`
 
