@@ -10,6 +10,7 @@ $(document).on('ready page:load', function(event) {
   var dataArr = []
   var indicator1 = ''
   var indicator1data = []
+  /*------------------------------------------------*/
   // update chart based on selection changes
   $('select').change(function() {
     currencySym = $(':selected')[0].id
@@ -17,24 +18,21 @@ $(document).on('ready page:load', function(event) {
     timeFrame = $(':selected')[1].className
     indicator1 = $(':selected')[2].id
     //which api to call. min/hr/day
-    // console.log(currencySym)
-    // console.log(timeDigit)
-    // console.log(timeFrame)
+
     // console.log(indicator1)
     totalTimePeriods = parseInt(timeDigit) + bufferPeriods - 1
     var histoQuery =`https://min-api.cryptocompare.com/data/histo${timeFrame}?tsym=USD&fsym=${currencySym}&limit=${totalTimePeriods}`
-    // console.log(histoQuery)
 
     $.get(histoQuery).done(function(x) {
       apidata = x.Data
       // console.log(apidata)
+
       //for prices remove day -20 to 0
       close = JSON.parse(JSON.stringify(apidata)).splice(20)
       close.forEach(function(e) {
         e.time =  new Date(e.time * 1000)
         e.value = e.close
       })
-      // console.log(close)
 
       //always chart the price
       dataArr = [close]
@@ -44,10 +42,9 @@ $(document).on('ready page:load', function(event) {
         return a.value - b.value
       })
       // console.log(closeSort)
+
       if (indicator1 === 'SMA5') {
-        //calculate sma5
         sma5 = JSON.parse(JSON.stringify(apidata)).splice(0)
-        // console.log(sma5)
         for (i = 20; i < sma5.length; i++) {
           var arr5days = sma5.slice(i-5,i)
           var sum = arr5days.reduce(function(a,b) {
@@ -64,7 +61,7 @@ $(document).on('ready page:load', function(event) {
         indicator1data = []
         dataArr.splice(1,1) //removes indicator1 line
       }
-      
+
       console.log(dataArr)
       plot()
 
@@ -94,19 +91,19 @@ $(document).on('ready page:load', function(event) {
   }
 
   /*------------------------------------------------*/
-  // var currentPriceApi = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,XRP,BCH,XEM,LTC,GNO,EOS,NEO,DASH&tsyms=USD`
-  //
-  // function getCurrentPrice(){
-  //   $.get(currentPriceApi).done(function(data){
-  //     // console.log(data)
-  //     for (var key in data) {
-  //       // console.log(key) //coin symbol
-  //       // console.log(data[key].USD) //price
-  //       $(`#live${key}`).text(`${key}: ${data[key].USD}`)
-  //     }
-  //   }) // close api call
-  // } // close fn
-  // getCurrentPrice()
-  // setInterval(getCurrentPrice, 10000)
+  var currentPriceApi = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,XRP,BCH,XEM,LTC,GNO,EOS,NEO,DASH&tsyms=USD`
+
+  function getCurrentPrice(){
+    $.get(currentPriceApi).done(function(data){
+      // console.log(data)
+      for (var key in data) {
+        // console.log(key) //coin symbol
+        // console.log(data[key].USD) //price
+        $(`#live${key}`).text(`${key}: ${data[key].USD}`)
+      }
+    }) // close api call
+  } // close fn
+  getCurrentPrice()
+  setInterval(getCurrentPrice, 10000)
   /*------------------------------------------------*/
 }) //close doc.ready
