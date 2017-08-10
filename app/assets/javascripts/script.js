@@ -1,7 +1,5 @@
 $(document).on('ready page:load', function(event) {
-
   console.log('javascript is running')
-
   /*------------------------------------------------*/
   var currencySym = 'BTC'
   var timeDigit = 60
@@ -70,7 +68,6 @@ $(document).on('ready page:load', function(event) {
       // console.log(dataArr)
       plot()
 
-
       volume = JSON.parse(JSON.stringify(apidata)).splice(20)
       volume.forEach(function(e) {
         e.time =  new Date(e.time * 1000)
@@ -132,7 +129,7 @@ $(document).on('ready page:load', function(event) {
     })
   }
   /*------------------------------------------------*/
-  var currentPriceApi = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,XRP,BCH,XEM,LTC,GNO,EOS,NEO,DASH&tsyms=USD`
+  var currentPriceApi = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,XRP,LTC,DASH&tsyms=USD`
 
   function getCurrentPrice(){
     $.get(currentPriceApi).done(function(data){
